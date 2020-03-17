@@ -1,0 +1,34 @@
+{
+    "name": "mohdnazrul/laravel-ctos-ekyc",
+    "description": "Library to pull and verify from eKYC CTOS (Version 1)",
+    "type": "library",
+    "require": {
+        "guzzlehttp/guzzle": "^6.3"
+    },
+    "require-dev": {
+        "illuminate/support": "5.4.*",
+        "phpunit/phpunit": "^7.0.2"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mohd Nazrul Bin Mustaffa",
+            "email": "nazrul.mustaffa@capbay.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "MohdNazrul\\CTOSEKYCLaravel\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MohdNazrul\\CTOSEKYCLaravel\\CTOSEKYCServiceProvider"
+            ],
+            "aliases": {
+                "CTOSV2": "MohdNazrul\\CTOSEKYCLaravel\\CTOSEKYCApiFacade"
+            }
+        }
+    }
+}
