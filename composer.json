@@ -14,11 +14,16 @@
         {
             "name": "Mohd Nazrul Bin Mustaffa",
             "email": "nazrul.mustaffa@capbay.com"
+        },
+        {
+            "name": "Chun Shui Tan",
+            "email": "chunshui.tan@capbay.com"
         }
     ],
     "autoload": {
         "psr-4": {
-            "MohdNazrul\\CTOSEKYCLaravel\\": "src"
+            "MohdNazrul\\CTOSEKYCLaravel\\": "src",
+            "MohdNazrul\\CTOSEKYCLaravelTest\\" : "tests"
         }
     },
     "extra": {
@@ -27,7 +32,7 @@
                 "MohdNazrul\\CTOSEKYCLaravel\\CTOSEKYCServiceProvider"
             ],
             "aliases": {
-                "CTOSV2": "MohdNazrul\\CTOSEKYCLaravel\\CTOSEKYCApiFacade"
+                "CTOSEKYC": "MohdNazrul\\CTOSEKYCLaravel\\CTOSEKYCApiFacade"
             }
         }
     }
