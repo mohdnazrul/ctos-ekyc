@@ -17,7 +17,7 @@ class CTOSeKYCServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../config/ctos_ekyc.php' => config_path('ctos_ekyc.php'),
-        ], 'ctosv2');
+        ], 'ctos_ekyc');
     }
 
     /**
