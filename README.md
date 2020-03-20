@@ -33,12 +33,12 @@ Configuration via the .env file currently allows the following variables to be s
    ....
    'providers'=> [
      .
-     MohdNazrul\CTOSEKYCLaravel\CTOSServiceProvider::class,
+     MohdNazrul\CTOSEKYCLaravel\CTOSeKYCServiceProvider::class,
      .
    ],
    'aliases' => [
       .
-      'CTOSEKYC' => MohdNazrul\CTOSEKYCLaravel\CTOSApiFacade::class,
+      'CTOSEKYC' => MohdNazrul\CTOSEKYCLaravel\CTOSeKYCServiceProvider::class,
       '
     ],
 ``` 
