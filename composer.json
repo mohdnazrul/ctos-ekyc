@@ -22,8 +22,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "MohdNazrul\\CTOSEKYCLaravel\\": "src",
-            "MohdNazrul\\CTOSEKYCLaravelTest\\" : "tests"
+            "MohdNazrul\\CTOSEKYCLaravel\\": "src"
         }
     },
     "extra": {
