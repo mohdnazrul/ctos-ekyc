@@ -48,7 +48,7 @@ class CTOSeKYCApi
         ];
 
         $bodyJSON = json_encode($body, true);
-        $encrypted = openssl_encrypt($bodyJSON, $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
+        $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
 
         $dataBody = [
             'data' => base64_encode($encrypted),
@@ -71,11 +71,11 @@ class CTOSeKYCApi
         $resBody = $response->getBody()->getContents();
         $resArray = json_decode($resBody, true);
         if ($resArray['success']) {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
+            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
             $outputArray = json_decode($output, true);
             $this->TOKEN = $outputArray['access_token'];
         } else {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
+            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
             $outputArray = json_decode($output, true);
             $this->TOKEN = null;
         }
@@ -118,9 +118,7 @@ class CTOSeKYCApi
             ];
 
             $bodyJSON = json_encode($body, true);
-
-            $encrypted = openssl_encrypt($bodyJSON, $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
-
+            $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
             $dataBody = [
                 'data' => base64_encode($encrypted),
                 'api_key' => $this->CTOS_EKYC_API_KEY
@@ -148,13 +146,11 @@ class CTOSeKYCApi
             $resArray = json_decode($resBody, true);
 
             if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
-
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
                 $this->ONBOARDING_ID = $outputArray['onboarding_id'];
             } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
-
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
                 $this->ONBOARDING_ID = null;
             }
@@ -189,9 +185,7 @@ class CTOSeKYCApi
             ];
 
             $bodyJSON = json_encode($body, true);
-
-            $encrypted = openssl_encrypt($bodyJSON, $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
-
+            $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
             $dataBody = [
                 'data' => base64_encode($encrypted),
                 'api_key' => $this->CTOS_EKYC_API_KEY
@@ -217,7 +211,7 @@ class CTOSeKYCApi
             $resArray = json_decode($resBody, true);
 
             if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
                 $ocr_output = $outputArray['ocr_result'];
                 if ($card_type == 1) {
@@ -226,7 +220,7 @@ class CTOSeKYCApi
                     $this->OCR_RESULT_2 = $ocr_output;
                 }
             } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHCTOS_EKYC_CIPHERER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
                 if ($card_type == 1) {
                     $this->OCR_RESULT_1 = null;
@@ -265,8 +259,7 @@ class CTOSeKYCApi
             ];
 
             $bodyJSON = json_encode($body, true);
-            $encrypted = openssl_encrypt($bodyJSON, $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
-
+            $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
             $dataBody = [
                 'data' => base64_encode($encrypted),
                 'api_key' => $this->CTOS_EKYC_API_KEY
@@ -292,12 +285,12 @@ class CTOSeKYCApi
             $resArray = json_decode($resBody, true);
 
             if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER_TEXT, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
                 $overall_Score = $outputArray['overall_Score'];
                 $this->OVERALL_SCORE = $overall_Score;
             } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER_TEXT, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
                 $this->OVERALL_SCORE = null;
             }
@@ -345,9 +338,7 @@ class CTOSeKYCApi
             ];
 
             $bodyJSON = json_encode($body, true);
-
-            $encrypted = openssl_encrypt($bodyJSON, $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
-
+            $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
             $dataBody = [
                 'data' => base64_encode($encrypted),
                 'api_key' => $this->CTOS_EKYC_API_KEY
@@ -372,11 +363,11 @@ class CTOSeKYCApi
             $resArray = json_decode($resBody, true);
 
             if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
                 $this->TEXT_SIMILARITY_RESULT = $outputArray['text_similarity_result'];
             } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
                 $this->TEXT_SIMILARITY_RESULT = null;
             }
@@ -409,9 +400,7 @@ class CTOSeKYCApi
             ];
 
             $bodyJSON = json_encode($body, true);
-
-            $encrypted = openssl_encrypt($bodyJSON, $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
-
+            $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
             $dataBody = [
                 'data' => base64_encode($encrypted),
                 'api_key' => $this->CTOS_EKYC_API_KEY
@@ -438,10 +427,10 @@ class CTOSeKYCApi
             $resArray = json_decode($resBody, true);
 
             if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
             } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
             }
             return $outputArray;
