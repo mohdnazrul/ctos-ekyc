@@ -73,7 +73,6 @@ class CTOSeKYCApi
         if ($resArray['success']) {
             $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
             $outputArray = json_decode($output, true);
-            dd($outputArray);
             $this->TOKEN = $outputArray['access_token'];
         } else {
             $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
