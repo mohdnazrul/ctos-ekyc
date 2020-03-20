@@ -1,6 +1,8 @@
 <?php
 return [
-    'eKYC_URL'    =>  env('CTOS_URL','http://localhost'),
-    'eKYC_'      =>  env('CTOS_USERNAME','username'),
-    'password'      =>  env('CTOS_PASSWORD','password')
+    'CTOS_EKYC_URL' => env('CTOS_EKYC_URL', 'http://localhost'),
+    'CTOS_EKYC_CIPHER' => env('CTOS_EKYC_CIPHER', 'NA'),
+    'CTOS_EKYC_API_KEY' => env('CTOS_EKYC_API_KEY', 'NA'),
+    'CTOS_EKYC_CIPHER_TEXT' => env('CTOS_PASSWORD', 'NA'),
+    'CTOS_EKYC_PACKAGE_NAME' => env('CTOS_EKYC_CIPHER_TEXT', 'NA'),
 ];

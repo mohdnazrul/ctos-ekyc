@@ -38,7 +38,7 @@ Configuration via the .env file currently allows the following variables to be s
    ],
    'aliases' => [
       .
-      'CTOSV2' => MohdNazrul\CTOSEKYCLaravel\CTOSApiFacade::class,
+      'CTOSEKYC' => MohdNazrul\CTOSEKYCLaravel\CTOSApiFacade::class,
       '
     ],
 ``` 
@@ -46,13 +46,16 @@ Configuration via the .env file currently allows the following variables to be s
 ```php
 php artisan vendor:publish --tag=ctos_ekyc 
 ```
-- You can edit the default configuration CBM inside config/ctosv2.php based your account as below
+- You can edit the default configuration eKYC CTOS inside config/ctos_ekyc.php based your account as below
 ```php
 return [
-    'serviceUrl'    =>  env('CTOS_URL','http://localhost'),
-    'username'      =>  env('CTOS_USERNAME','username'),
-    'password'      =>  env('CTOS_PASSWORD','password')
+    'CTOS_EKYC_URL' => env('CTOS_EKYC_URL', 'http://localhost'),
+    'CTOS_EKYC_CIPHER' => env('CTOS_EKYC_CIPHER', 'NA'),
+    'CTOS_EKYC_API_KEY' => env('CTOS_EKYC_API_KEY', 'NA'),
+    'CTOS_EKYC_CIPHER_TEXT' => env('CTOS_PASSWORD', 'NA'),
+    'CTOS_EKYC_PACKAGE_NAME' => env('CTOS_EKYC_CIPHER_TEXT', 'NA'),
 ];
+
 ``` 
 
 
