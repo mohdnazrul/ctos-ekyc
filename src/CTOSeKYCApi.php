@@ -38,6 +38,8 @@ class CTOSeKYCApi
     public function getToken($device_model = 'NA', $device_brand = 'NA', $device_imei = 'NA', $device_mac = 'NA')
     {
 
+        dd($this->URL,$this->CIPHER,$this->API_KEY,$this->CIPHER_TEXT,$this->PACKAGE_NAME,$this->MD5_KEY);
+
         $body = [
             "device_model" => $device_model,
             "device_brand" => $device_brand,
