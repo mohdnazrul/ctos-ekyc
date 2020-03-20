@@ -42,24 +42,24 @@ class CTOSeKYCApi
             "device_model" => $device_model,
             "device_brand" => $device_brand,
             "device_imei" => $device_imei,
-            "api_key" => $this->API_KEY,
+            "api_key" => $this->CTOS_EKYC_API_KEY,
             "device_mac" => $device_mac,
-            "package_name" => $this->PACKAGE_NAME,
+            "package_name" => $this->CTOS_EKYC_PACKAGE_NAME,
         ];
 
         $bodyJSON = json_encode($body, true);
-        $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+        $encrypted = openssl_encrypt($bodyJSON, $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
 
         $dataBody = [
             'data' => base64_encode($encrypted),
-            'api_key' => $this->API_KEY
+            'api_key' => $this->CTOS_EKYC_API_KEY
         ];
 
         $dataBodyJSON = json_encode($dataBody);
 
         $httpClient = new Client();
         $response = $httpClient->post(
-            $this->URL . 'v2/auth/get-token',
+            $this->CTOS_EKYC_URL . 'v2/auth/get-token',
             [
                 RequestOptions::BODY => $dataBodyJSON,
                 RequestOptions::HEADERS => [
@@ -71,11 +71,11 @@ class CTOSeKYCApi
         $resBody = $response->getBody()->getContents();
         $resArray = json_decode($resBody, true);
         if ($resArray['success']) {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
             $outputArray = json_decode($output, true);
             $this->TOKEN = $outputArray['access_token'];
         } else {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
             $outputArray = json_decode($output, true);
             $this->TOKEN = null;
         }
@@ -104,12 +104,12 @@ class CTOSeKYCApi
                     "gender" => $gender,
                     "placeOfBirth" => $place_of_birth
                 ],
-                "package_name" => $this->PACKAGE_NAME,
+                "package_name" => $this->CTOS_EKYC_PACKAGE_NAME,
                 "ref_id" => $ref_id,
                 "extra" => $this->security_signature_token($ref_id),
                 "date" => Carbon::now()->format('Y-m-d'),
                 "request_time" => Carbon::now()->format('Y-m-d h:i:s'),
-                "api_key" => $this->API_KEY,
+                "api_key" => $this->CTOS_EKYC_API_KEY,
                 "product_info" => [
                     "product_name" => $product_name,
                     "product_desc" => $product_desc,
@@ -119,11 +119,11 @@ class CTOSeKYCApi
 
             $bodyJSON = json_encode($body, true);
 
-            $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+            $encrypted = openssl_encrypt($bodyJSON, $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
 
             $dataBody = [
                 'data' => base64_encode($encrypted),
-                'api_key' => $this->API_KEY
+                'api_key' => $this->CTOS_EKYC_API_KEY
             ];
 
             $dataBodyJSON = json_encode($dataBody);
@@ -133,7 +133,7 @@ class CTOSeKYCApi
 
             $httpClient = new Client();
             $response = $httpClient->post(
-                $this->URL . 'v2/bank/new-applicant',
+                $this->CTOS_EKYC_URL . 'v2/bank/new-applicant',
                 [
                     RequestOptions::BODY => $dataBodyJSON,
                     RequestOptions::HEADERS => [
@@ -148,12 +148,12 @@ class CTOSeKYCApi
             $resArray = json_decode($resBody, true);
 
             if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
 
                 $outputArray = json_decode($output, true);
                 $this->ONBOARDING_ID = $outputArray['onboarding_id'];
             } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
 
                 $outputArray = json_decode($output, true);
                 $this->ONBOARDING_ID = null;
@@ -182,19 +182,19 @@ class CTOSeKYCApi
                     "device_mac" => "NA",
                     "device_model" => "NA",
                     "platform" => "Web", // Android / Ios / Web
-                    "api_key" => $this->API_KEY,
+                    "api_key" => $this->CTOS_EKYC_API_KEY,
                     "id_image" => 'data:image/' . $image_type . ';base64,' . $img_base_64,
-                    'api_key' => $this->API_KEY
+                    'api_key' => $this->CTOS_EKYC_API_KEY
                 ]
             ];
 
             $bodyJSON = json_encode($body, true);
 
-            $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+            $encrypted = openssl_encrypt($bodyJSON, $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
 
             $dataBody = [
                 'data' => base64_encode($encrypted),
-                'api_key' => $this->API_KEY
+                'api_key' => $this->CTOS_EKYC_API_KEY
             ];
 
             $dataBodyJSON = json_encode($dataBody, true);
@@ -202,7 +202,7 @@ class CTOSeKYCApi
             $access_token = "access_token " . $this->TOKEN;
             $httpClient = new Client();
             $response = $httpClient->post(
-                $this->URL . 'v2/webservices/ocr-scanner',
+                $this->CTOS_EKYC_URL . 'v2/webservices/ocr-scanner',
                 [
                     RequestOptions::BODY => $dataBodyJSON,
                     RequestOptions::HEADERS => [
@@ -217,7 +217,7 @@ class CTOSeKYCApi
             $resArray = json_decode($resBody, true);
 
             if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
                 $ocr_output = $outputArray['ocr_result'];
                 if ($card_type == 1) {
@@ -226,7 +226,7 @@ class CTOSeKYCApi
                     $this->OCR_RESULT_2 = $ocr_output;
                 }
             } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHCTOS_EKYC_CIPHERER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
                 if ($card_type == 1) {
                     $this->OCR_RESULT_1 = null;
@@ -253,11 +253,11 @@ class CTOSeKYCApi
                 "device_model" => $device_model,
                 "device_brand" => $device_brand,
                 "device_mac" => $device_mac,
-                "package_name" => $this->PACKAGE_NAME,
+                "package_name" => $this->CTOS_EKYC_PACKAGE_NAME,
                 "device_imei" => $device_imei,
                 "onboarding_id" => $this->ONBOARDING_ID,
                 "extra" => $this->security_signature_token_landmark(),
-                "api_key" => $this->API_KEY,
+                "api_key" => $this->CTOS_EKYC_API_KEY,
                 "date" => Carbon::now()->format('Y-m-d'),
                 "platform" => $platform,
                 "request_time" => Carbon::now()->format('Y-m-d h:s:i'),
@@ -265,11 +265,11 @@ class CTOSeKYCApi
             ];
 
             $bodyJSON = json_encode($body, true);
-            $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+            $encrypted = openssl_encrypt($bodyJSON, $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
 
             $dataBody = [
                 'data' => base64_encode($encrypted),
-                'api_key' => $this->API_KEY
+                'api_key' => $this->CTOS_EKYC_API_KEY
             ];
 
             $dataBodyJSON = json_encode($dataBody, true);
@@ -278,7 +278,7 @@ class CTOSeKYCApi
 
             $httpClient = new Client();
             $response = $httpClient->post(
-                $this->URL . 'v2/landmark/perform-landmark',
+                $this->CTOS_EKYC_URL . 'v2/landmark/perform-landmark',
                 [
                     RequestOptions::BODY => $dataBodyJSON,
                     RequestOptions::HEADERS => [
@@ -292,12 +292,12 @@ class CTOSeKYCApi
             $resArray = json_decode($resBody, true);
 
             if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER_TEXT, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
                 $overall_Score = $outputArray['overall_Score'];
                 $this->OVERALL_SCORE = $overall_Score;
             } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER_TEXT, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
                 $this->OVERALL_SCORE = null;
             }
@@ -329,8 +329,8 @@ class CTOSeKYCApi
                     "gender" => $gender,
                     "placeOfBirth" => $place_of_birth
                 ],
-                "package_name" => $this->PACKAGE_NAME,
-                "api_key" => $this->API_KEY,
+                "package_name" => $this->CTOS_EKYC_PACKAGE_NAME,
+                "api_key" => $this->CTOS_EKYC_API_KEY,
                 "onboarding_id" => $this->ONBOARDING_ID,
                 "device_imei" => $device_imei,
                 "device_mac" => $device_mac,
@@ -346,18 +346,18 @@ class CTOSeKYCApi
 
             $bodyJSON = json_encode($body, true);
 
-            $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+            $encrypted = openssl_encrypt($bodyJSON, $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
 
             $dataBody = [
                 'data' => base64_encode($encrypted),
-                'api_key' => $this->API_KEY
+                'api_key' => $this->CTOS_EKYC_API_KEY
             ];
 
             $dataBodyJSON = json_encode($dataBody);
             $access_token = "access_token " . $this->TOKEN;
             $httpClient = new Client();
             $response = $httpClient->post(
-                $this->URL . 'v2/webservices/save-data',
+                $this->CTOS_EKYC_URL . 'v2/webservices/save-data',
                 [
                     RequestOptions::BODY => $dataBodyJSON,
                     RequestOptions::HEADERS => [
@@ -372,11 +372,11 @@ class CTOSeKYCApi
             $resArray = json_decode($resBody, true);
 
             if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
                 $this->TEXT_SIMILARITY_RESULT = $outputArray['text_similarity_result'];
             } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
                 $this->TEXT_SIMILARITY_RESULT = null;
             }
@@ -397,7 +397,7 @@ class CTOSeKYCApi
         if (!empty($this->TEXT_SIMILARITY_RESULT)) {
             $body = ["data" =>
                 [
-                    "api_key" => $this->API_KEY,
+                    "api_key" => $this->CTOS_EKYC_API_KEY,
                     "onboarding_id" => $this->ONBOARDING_ID,
                     "request_time" => Carbon::now()->format('Y-m-d h:i:s'),
                     "device_model" => "NA",
@@ -410,11 +410,11 @@ class CTOSeKYCApi
 
             $bodyJSON = json_encode($body, true);
 
-            $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+            $encrypted = openssl_encrypt($bodyJSON, $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER_TEXT . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
 
             $dataBody = [
                 'data' => base64_encode($encrypted),
-                'api_key' => $this->API_KEY
+                'api_key' => $this->CTOS_EKYC_API_KEY
             ];
 
             $dataBodyJSON = json_encode($dataBody);
@@ -423,7 +423,7 @@ class CTOSeKYCApi
 
             $httpClient = new Client();
             $response = $httpClient->post(
-                $this->URL . 'v2/webservices/liveness',
+                $this->CTOS_EKYC_URL . 'v2/webservices/liveness',
                 [
                     RequestOptions::BODY => $dataBodyJSON,
                     RequestOptions::HEADERS => [
@@ -438,10 +438,10 @@ class CTOSeKYCApi
             $resArray = json_decode($resBody, true);
 
             if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
             } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CTOS_EKYC_CIPHER, $this->CTOS_EKYC_CIPHER . $this->CTOS_EKYC_API_KEY, OPENSSL_RAW_DATA, $this->CTOS_EKYC_CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
             }
             return $outputArray;
@@ -455,9 +455,9 @@ class CTOSeKYCApi
 
     private function security_signature_token($ref_id)
     {
-        $api_key = $this->API_KEY;
+        $api_key = $this->CTOS_EKYC_API_KEY;
         $date = Carbon::now()->format('Y-m-d');
-        $package_name = $this->PACKAGE_NAME;
+        $package_name = $this->CTOS_EKYC_PACKAGE_NAME;
         $md5Key = $this->MD5_KEY;
         $strSecurity = $api_key . $ref_id . $md5Key . $date . $package_name;
         $md5_sst = base64_encode(md5($strSecurity));
@@ -466,10 +466,10 @@ class CTOSeKYCApi
 
     private function security_signature_token_landmark($device_mac = 'NA', $device_imei = 'NA')
     {
-        $api_key = $this->API_KEY;
+        $api_key = $this->CTOS_EKYC_API_KEY;
         $date = Carbon::now()->format('Y-m-d');
         $onboarding_id = $this->ONBOARDING_ID;
-        $package_name = $this->PACKAGE_NAME;
+        $package_name = $this->CTOS_EKYC_PACKAGE_NAME;
         $md5Key = $this->MD5_KEY;
         $strSecurity = $api_key . $device_mac . $onboarding_id . $md5Key . $date . $device_imei . $package_name;
         $md5_sst = base64_encode(md5($strSecurity));
