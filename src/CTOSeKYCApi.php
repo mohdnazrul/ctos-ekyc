@@ -15,14 +15,16 @@ class CTOSeKYCApi
     private $CTOS_EKYC_API_KEY;
     private $CTOS_EKYC_CIPHER_TEXT;
     private $CTOS_EKYC_PACKAGE_NAME;
+    private $MD5_KEY ;
 
-    public function __construct($url, $cipher, $api_key, $cipher_text, $package_name)
+    public function __construct($url, $cipher, $api_key, $cipher_text, $package_name, $md5_key)
     {
         $this->CTOS_EKYC_URL = $url;
         $this->CTOS_EKYC_CIPHER = $cipher;
         $this->CTOS_EKYC_API_KEY = $api_key;
         $this->CTOS_EKYC_CIPHER_TEXT = $cipher_text;
         $this->CTOS_EKYC_PACKAGE_NAME = $package_name;
+        $this->MD5_KEY = $md5_key;
     }
 
     public function getToken($device_model = 'NA', $device_brand = 'NA', $device_imei = 'NA', $device_mac = 'NA')

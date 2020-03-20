@@ -18,6 +18,7 @@ Configuration via the .env file currently allows the following variables to be s
 - CTOS\_EKYC\_API\_KEY=Contact Xendity\/CTOS
 - CTOS\_EKYC\_CIPHER\_TEXT=Contact Xendity\/CTOS
 - CTOS\_EKYC\_PACKAGE\_NAME=Contact Xendity\/CTOS
+- CTOS\_EKYC\_MD5\_KEY=Contact Xendity\/CTOS
 
 ## Available functions
 
@@ -52,9 +53,11 @@ return [
     'CTOS_EKYC_URL' => env('CTOS_EKYC_URL', 'http://localhost'),
     'CTOS_EKYC_CIPHER' => env('CTOS_EKYC_CIPHER', 'NA'),
     'CTOS_EKYC_API_KEY' => env('CTOS_EKYC_API_KEY', 'NA'),
-    'CTOS_EKYC_CIPHER_TEXT' => env('CTOS_PASSWORD', 'NA'),
-    'CTOS_EKYC_PACKAGE_NAME' => env('CTOS_EKYC_CIPHER_TEXT', 'NA'),
+    'CTOS_EKYC_CIPHER_TEXT' => env('CTOS_EKYC_CIPHER_TEXT', 'NA'),
+    'CTOS_EKYC_PACKAGE_NAME' => env('CTOS_EKYC_PACKAGE_NAME', 'NA'),
+    'CTOS_EKYC_MD5_KEY' => env('CTOS_EKYC_MD5_KEY', 'NA'),
 ];
+
 
 ``` 
 
