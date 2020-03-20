@@ -32,13 +32,14 @@ class CTOSeKYCServiceProvider extends ServiceProvider
         //$url, $cipher, $api_key, $cipher_text, $package_name
         $this->app->singleton('CTOSeKYCApi', function ($app){
             $config     =   $app->make('config');
-            $url   =   $config->get('ctosv2.username');
-            $cipher   =   $config->get('ctosv2.password');
-            $api_key =   $config->get('ctosv2.serviceUrl');
-            $cipher_text =   $config->get('ctosv2.serviceUrl');
-            $package_name =   $config->get('ctosv2.serviceUrl');
+            $url   =   $config->get('ctos_ekyc.CTOS_EKYC_URL');
+            $cipher   =   $config->get('ctos_ekyc.CTOS_EKYC_CIPHER');
+            $api_key =   $config->get('ctos_ekyc.CTOS_EKYC_API_KEY');
+            $cipher_text =   $config->get('ctos_ekyc.CTOS_EKYC_CIPHER_TEXT');
+            $package_name =   $config->get('ctos_ekyc.CTOS_EKYC_PACKAGE_NAME');
+            $md5_key =   $config->get('ctos_ekyc.CTOS_EKYC_MD5_KEY');
 
-            return new CTOSeKYCApi($url, $cipher, $api_key, $cipher_text, $package_name);
+            return new CTOSeKYCApi($url, $cipher, $api_key, $cipher_text, $package_name, $md5_key);
 
         });
     }
