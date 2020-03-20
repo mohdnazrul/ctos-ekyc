@@ -10,20 +10,28 @@ use GuzzleHttp\RequestOptions;
 
 class CTOSeKYCApi
 {
-    private $CTOS_EKYC_URL;
-    private $CTOS_EKYC_CIPHER;
-    private $CTOS_EKYC_API_KEY;
-    private $CTOS_EKYC_CIPHER_TEXT;
-    private $CTOS_EKYC_PACKAGE_NAME;
-    private $MD5_KEY ;
+    private $CIPHER;
+    private $URL;
+    private $API_KEY;
+    private $CIPHER_TEXT;
+    private $MD5_KEY;
+    private $PACKAGE_NAME;
+
+    private $REF_ID;
+    private $TOKEN;
+    private $ONBOARDING_ID;
+    private $OCR_RESULT_1;
+    private $OCR_RESULT_2;
+    private $OVERALL_SCORE;
+    private $TEXT_SIMILARITY_RESULT;
 
     public function __construct($url, $cipher, $api_key, $cipher_text, $package_name, $md5_key)
     {
-        $this->CTOS_EKYC_URL = $url;
-        $this->CTOS_EKYC_CIPHER = $cipher;
-        $this->CTOS_EKYC_API_KEY = $api_key;
-        $this->CTOS_EKYC_CIPHER_TEXT = $cipher_text;
-        $this->CTOS_EKYC_PACKAGE_NAME = $package_name;
+        $this->URL = $url;
+        $this->CIPHER = $cipher;
+        $this->API_KEY = $api_key;
+        $this->CIPHER_TEXT = $cipher_text;
+        $this->PACKAGE_NAME = $package_name;
         $this->MD5_KEY = $md5_key;
     }
 
