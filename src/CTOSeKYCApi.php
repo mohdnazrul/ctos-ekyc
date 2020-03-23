@@ -310,7 +310,7 @@ class CTOSeKYCApi
         if (!empty($this->OVERALL_SCORE)) {
             $body = [
                 "id_info" => [
-                    "extra" => $this->security_signature_token_landmark(),
+                    "extra" => $this->security_signature_token_landmark($device_mac, $device_imei),
                     "documentNumber" => $ic_no,
                     "backDocumentNumber" => $ic_no,
                     "dateOfBirth" => $dob,
@@ -327,7 +327,7 @@ class CTOSeKYCApi
                 "onboarding_id" => $this->ONBOARDING_ID,
                 "device_imei" => $device_imei,
                 "device_mac" => $device_mac,
-                "extra" => $this->security_signature_token_landmark(),
+                "extra" => $this->security_signature_token_landmark($device_mac, $device_imei),
                 "request_time" => Carbon::now()->format('Y-m-d h:i:s'),
                 "date" => Carbon::now()->format('Y-m-d'),
                 "product_info" => [
