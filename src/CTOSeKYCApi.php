@@ -87,6 +87,10 @@ class CTOSeKYCApi
                                           $address, $fullName, $religion = 'NA', $gender, $place_of_birth,
                                           $product_name, $product_desc)
     {
+
+        ini_set('max_execution_time','600'); //max_execution_time','0' <- unlimited time
+        ini_set('memory_limit','512M');
+
         $this->REF_ID = $ref_id;
 
         if (!empty($this->TOKEN)) {
@@ -166,7 +170,7 @@ class CTOSeKYCApi
 
     }
 
-    public function step1_A_New_Applicant_v2($ref_id, $ic_no, $dob, $nationality, $citizenship,
+    public function step1_A_New_Applicant_v2($token, $ref_id, $ic_no, $dob, $nationality, $citizenship,
                                              $address, $fullName, $religion = 'NA', $gender, $place_of_birth,
                                              $product_name, $product_desc)
     {
@@ -208,7 +212,7 @@ class CTOSeKYCApi
 
         $dataBodyJSON = json_encode($dataBody);
 
-        $access_token = "access_token " . $this->TOKEN;
+        $access_token = "access_token " . $token;
 
 
         $httpClient = new Client();
@@ -316,70 +320,72 @@ class CTOSeKYCApi
 
     }
 
-    public function step1_B_OCR_Scanner_v2($boarding_id, $card_type = 1, $image_type, $img_base_64)
+    public function step1_B_OCR_Scanner_v2($token, $boarding_id, $card_type = 1, $image_type, $img_base_64, $device_mac = 'NA', $device_model = 'NA',
+                                           $platform = 'Web')
     {
+        ini_set('max_execution_time','600'); //max_execution_time','0' <- unlimited time
+        ini_set('memory_limit','512M');
 
-
-            $body = ['ocr' =>
-                [
-                    "onboarding_id" => $boarding_id,
-                    "card_type" => $card_type,
-                    "request_time" => Carbon::now()->format('Y-m-d h:i:s'),
-                    "device_mac" => "NA",
-                    "device_model" => "NA",
-                    "platform" => "Web", // Android / Ios / Web
-                    "api_key" => $this->API_KEY,
-                    "id_image" => 'data:image/' . $image_type . ';base64,' . $img_base_64,
-                    'api_key' => $this->API_KEY
-                ]
-            ];
-
-            $bodyJSON = json_encode($body, true);
-            $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $dataBody = [
-                'data' => base64_encode($encrypted),
+        $body = ['ocr' =>
+            [
+                "onboarding_id" => $boarding_id,
+                "card_type" => $card_type,
+                "request_time" => Carbon::now()->format('Y-m-d h:i:s'),
+                "device_mac" => $device_mac,
+                "device_model" => $device_model,
+                "platform" => $platform, // Android / Ios / Web
+                "api_key" => $this->API_KEY,
+                "id_image" => 'data:image/' . $image_type . ';base64,' . $img_base_64,
                 'api_key' => $this->API_KEY
-            ];
+            ]
+        ];
 
-            $dataBodyJSON = json_encode($dataBody, true);
+        $bodyJSON = json_encode($body, true);
+        $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+        $dataBody = [
+            'data' => base64_encode($encrypted),
+            'api_key' => $this->API_KEY
+        ];
 
-            $access_token = "access_token " . $this->TOKEN;
-            $httpClient = new Client();
-            $response = $httpClient->post(
-                $this->URL . 'v2/webservices/ocr-scanner',
-                [
-                    RequestOptions::BODY => $dataBodyJSON,
-                    RequestOptions::HEADERS => [
-                        'Authorization' => $access_token,
-                        'Content-Type' => 'application/json',
-                    ],
-                ]
-            );
+        $dataBodyJSON = json_encode($dataBody, true);
 
-            $resBody = $response->getBody()->getContents();
+        $access_token = "access_token " . $token;
+        $httpClient = new Client();
+        $response = $httpClient->post(
+            $this->URL . 'v2/webservices/ocr-scanner',
+            [
+                RequestOptions::BODY => $dataBodyJSON,
+                RequestOptions::HEADERS => [
+                    'Authorization' => $access_token,
+                    'Content-Type' => 'application/json',
+                ],
+            ]
+        );
 
-            $resArray = json_decode($resBody, true);
+        $resBody = $response->getBody()->getContents();
 
-            if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-                $outputArray = json_decode($output, true);
-                $ocr_output = $outputArray['ocr_result'];
-                if ($card_type == 1) {
-                    $this->OCR_RESULT_1 = $ocr_output;
-                } else {
-                    $this->OCR_RESULT_2 = $ocr_output;
-                }
+        $resArray = json_decode($resBody, true);
+
+        if ($resArray['success']) {
+            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+            $outputArray = json_decode($output, true);
+            $ocr_output = $outputArray['ocr_result'];
+            if ($card_type == 1) {
+                $this->OCR_RESULT_1 = $ocr_output;
             } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-                $outputArray = json_decode($output, true);
-                if ($card_type == 1) {
-                    $this->OCR_RESULT_1 = null;
-                } else {
-                    $this->OCR_RESULT_2 = null;
-                }
+                $this->OCR_RESULT_2 = $ocr_output;
             }
+        } else {
+            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+            $outputArray = json_decode($output, true);
+            if ($card_type == 1) {
+                $this->OCR_RESULT_1 = null;
+            } else {
+                $this->OCR_RESULT_2 = null;
+            }
+        }
 
-            return $outputArray;
+        return $outputArray;
 
     }
 
@@ -447,22 +453,25 @@ class CTOSeKYCApi
         }
     }
 
-    public function step1_C_Landmark_v2($boarding_id, $device_model, $device_brand, $device_mac, $device_imei, $platform, $billing_version = 1)
+    public function step1_C_Landmark_v2($token, $boarding_id, $device_model='NA', $device_brand='NA', $device_mac='NA', $device_imei='NA', $platform='Web', $billing_version = 1)
     {
+
+        ini_set('max_execution_time','600'); //max_execution_time','0' <- unlimited time
+        ini_set('memory_limit','512M');
 
         $body = [
             "device_model" => $device_model,
             "device_brand" => $device_brand,
-            "device_mac" => $device_mac,
-            "package_name" => $this->PACKAGE_NAME,
-            "device_imei" => $device_imei,
-            "onboarding_id" => $boarding_id,
-            "extra" => $this->security_signature_token_landmark_v2($boarding_id),
             "api_key" => $this->API_KEY,
-            "date" => Carbon::now()->format('Y-m-d'),
+            "device_mac" => $device_mac,
+            "device_imei" => $device_imei,
+            "package_name" => $this->PACKAGE_NAME,
             "platform" => $platform,
             "request_time" => Carbon::now()->format('Y-m-d h:s:i'),
             "billing_version" => $billing_version,
+            "onboarding_id" => $boarding_id,
+            "extra" => $this->security_signature_token_landmark_v2($boarding_id),
+            "date" => Carbon::now()->format('Y-m-d'),
         ];
 
         $bodyJSON = json_encode($body, true);
@@ -474,7 +483,7 @@ class CTOSeKYCApi
 
         $dataBodyJSON = json_encode($dataBody, true);
 
-        $access_token = "access_token " . $this->TOKEN;
+        $access_token = "access_token " . $token;
 
         $httpClient = new Client();
         $response = $httpClient->post(
@@ -584,9 +593,12 @@ class CTOSeKYCApi
         }
     }
 
-    public function step1_D_Save_Data_v2($boarding_id, $ic_no, $dob, $nationality, $citizenship, $address, $full_name, $religion = 'NA', $gender, $place_of_birth,
+    public function step1_D_Save_Data_v2($token, $boarding_id, $ic_no, $dob, $nationality, $citizenship, $address, $full_name, $religion = 'NA', $gender, $place_of_birth,
                                          $device_imei, $device_mac, $product_name, $product_desc)
     {
+
+        ini_set('max_execution_time','600'); //max_execution_time','0' <- unlimited time
+        ini_set('memory_limit','512M');
 
         $body = [
             "id_info" => [
@@ -625,7 +637,7 @@ class CTOSeKYCApi
         ];
 
         $dataBodyJSON = json_encode($dataBody);
-        $access_token = "access_token " . $this->TOKEN;
+        $access_token = "access_token " . $token;
         $httpClient = new Client();
         $response = $httpClient->post(
             $this->URL . 'v2/webservices/save-data',
@@ -658,6 +670,8 @@ class CTOSeKYCApi
 
     public function step2_A_Liveness($video_type, $video_base_64)
     {
+        ini_set('max_execution_time','600'); //max_execution_time','0' <- unlimited time
+        ini_set('memory_limit','512M');
 
         if (!empty($this->TEXT_SIMILARITY_RESULT)) {
             $body = ["data" =>
@@ -716,7 +730,7 @@ class CTOSeKYCApi
         }
     }
 
-    public function step2_A_Liveness_v2($boarding_id, $video_type, $video_base_64)
+    public function step2_A_Liveness_v2($token, $boarding_id, $video_type, $video_base_64,  $device_model='NA', $device_brand='NA', $device_mac='NA', $platform='Web')
     {
 
 
@@ -725,10 +739,10 @@ class CTOSeKYCApi
                 "api_key" => $this->API_KEY,
                 "onboarding_id" => $boarding_id,
                 "request_time" => Carbon::now()->format('Y-m-d h:i:s'),
-                "device_model" => "NA",
-                "device_brand" => "NA",
-                "device_mac" => "NA",
-                "platform" => "Web",
+                "device_model" => $device_model,
+                "device_brand" => $device_brand,
+                "device_mac" => $device_mac,
+                "platform" => $platform,
                 "video" => "data:video/" . $video_type . ";base64," . $video_base_64,
             ]
         ];
@@ -742,7 +756,7 @@ class CTOSeKYCApi
 
         $dataBodyJSON = json_encode($dataBody);
 
-        $access_token = "access_token " . $this->TOKEN;
+        $access_token = "access_token " . $token;
 
         $httpClient = new Client();
         $response = $httpClient->post(
