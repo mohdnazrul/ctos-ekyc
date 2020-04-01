@@ -323,8 +323,6 @@ class CTOSeKYCApi
     public function step1_B_OCR_Scanner_v2($token, $boarding_id, $card_type = 1, $image_type, $img_base_64, $device_mac = 'NA', $device_model = 'NA',
                                            $platform = 'Web')
     {
-        ini_set('max_execution_time','600'); //max_execution_time','0' <- unlimited time
-        ini_set('memory_limit','512M');
 
         $body = ['ocr' =>
             [
@@ -455,9 +453,6 @@ class CTOSeKYCApi
 
     public function step1_C_Landmark_v2($token, $boarding_id, $device_model='NA', $device_brand='NA', $device_mac='NA', $device_imei='NA', $platform='Web', $billing_version = 1)
     {
-
-        ini_set('max_execution_time','600'); //max_execution_time','0' <- unlimited time
-        ini_set('memory_limit','512M');
 
         $body = [
             "device_model" => $device_model,
@@ -596,10 +591,6 @@ class CTOSeKYCApi
     public function step1_D_Save_Data_v2($token, $boarding_id, $ic_no, $dob, $nationality, $citizenship, $address, $full_name, $religion = 'NA', $gender, $place_of_birth,
                                          $device_imei, $device_mac, $product_name, $product_desc)
     {
-
-        ini_set('max_execution_time','600'); //max_execution_time','0' <- unlimited time
-        ini_set('memory_limit','512M');
-
         $body = [
             "id_info" => [
                 "extra" => $this->security_signature_token_landmark_v2($boarding_id, $device_mac, $device_imei),
@@ -732,8 +723,6 @@ class CTOSeKYCApi
 
     public function step2_A_Liveness_v2($token, $boarding_id, $video_type, $video_base_64,  $device_model='NA', $device_brand='NA', $device_mac='NA', $platform='Web')
     {
-
-
         $body = ["data" =>
             [
                 "api_key" => $this->API_KEY,
