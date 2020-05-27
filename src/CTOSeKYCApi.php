@@ -217,36 +217,37 @@ class CTOSeKYCApi
         $access_token = "access_token " . $token;
 
 
-        $httpClient = new Client();
-        $response = $httpClient->post(
-            $this->URL . 'v2/bank/new-applicant',
-            [
-                RequestOptions::BODY => $dataBodyJSON,
-                RequestOptions::HEADERS => [
-                    'User-Agent' => '',
-                    'Authorization' => $access_token,
-                    'Content-Type' => 'application/json',
-                ],
-            ]
-        );
+        try {
+            $httpClient = new Client();
+            $response = $httpClient->post(
+                $this->URL . 'v2/bank/new-applicant',
+                [
+                    RequestOptions::BODY => $dataBodyJSON,
+                    RequestOptions::HEADERS => [
+                        'User-Agent' => '',
+                        'Authorization' => $access_token,
+                        'Content-Type' => 'application/json',
+                    ],
+                ]
+            );
 
-        $resBody = $response->getBody()->getContents();
+            $resBody = $response->getBody()->getContents();
 
-        $resArray = json_decode($resBody, true);
+            $resArray = json_decode($resBody, true);
 
-        if ($resArray['success']) {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $outputArray = json_decode($output, true);
-            $this->ONBOARDING_ID = $outputArray['onboarding_id'];
-        } else {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $outputArray = json_decode($output, true);
-            $this->ONBOARDING_ID = null;
+            if ($resArray['success']) {
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $outputArray = json_decode($output, true);
+                $this->ONBOARDING_ID = $outputArray['onboarding_id'];
+            } else {
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $outputArray = json_decode($output, true);
+                $this->ONBOARDING_ID = null;
+            }
+            return $outputArray;
+        } catch (\Exception $e){
+            return 'error';
         }
-
-        return $outputArray;
-
-
     }
 
     public function step1_B_OCR_Scanner($card_type = 1, $image_type, $img_base_64)
