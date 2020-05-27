@@ -57,31 +57,37 @@ class CTOSeKYCApi
 
         $dataBodyJSON = json_encode($dataBody);
 
-        $httpClient = new Client();
-        $response = $httpClient->post(
-            $this->URL . 'v2/auth/get-token',
-            [
-                RequestOptions::BODY => $dataBodyJSON,
-                RequestOptions::HEADERS => [
-                    'User-Agent' => '',
-                    'Content-Type' => 'application/json',
-                ],
-            ]
-        );
+        try {
+            $httpClient = new Client();
+            $response = $httpClient->post(
+                $this->URL . 'v2/auth/get-token',
+                [
+                    RequestOptions::BODY => $dataBodyJSON,
+                    RequestOptions::HEADERS => [
+                        'User-Agent' => '',
+                        'Content-Type' => 'application/json',
+                    ],
+                ]
+            );
 
-        $resBody = $response->getBody()->getContents();
-        $resArray = json_decode($resBody, true);
-        if ($resArray['success']) {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $outputArray = json_decode($output, true);
-            $this->TOKEN = $outputArray['access_token'];
-        } else {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $outputArray = json_decode($output, true);
-            $this->TOKEN = null;
+            $resBody = $response->getBody()->getContents();
+            $resArray = json_decode($resBody, true);
+            if ($resArray['success']) {
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $outputArray = json_decode($output, true);
+                $this->TOKEN = $outputArray['access_token'];
+            } else {
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $outputArray = json_decode($output, true);
+                $this->TOKEN = null;
+            }
+
+            return $outputArray;
+        } catch (\Exception $e) {
+            return 'error';
         }
 
-        return $outputArray;
+
     }
 
     public function step1_A_New_Applicant($ref_id, $ic_no, $dob, $nationality, $citizenship,
@@ -89,8 +95,8 @@ class CTOSeKYCApi
                                           $product_name, $product_desc)
     {
 
-        ini_set('max_execution_time','600'); //max_execution_time','0' <- unlimited time
-        ini_set('memory_limit','512M');
+        ini_set('max_execution_time', '600'); //max_execution_time','0' <- unlimited time
+        ini_set('memory_limit', '512M');
 
         $this->REF_ID = $ref_id;
 
@@ -216,38 +222,34 @@ class CTOSeKYCApi
 
         $access_token = "access_token " . $token;
 
+        $httpClient = new Client();
+        $response = $httpClient->post(
+            $this->URL . 'v2/bank/new-applicant',
+            [
+                RequestOptions::BODY => $dataBodyJSON,
+                RequestOptions::HEADERS => [
+                    'User-Agent' => '',
+                    'Authorization' => $access_token,
+                    'Content-Type' => 'application/json',
+                ],
+            ]
+        );
 
-        try {
-            $httpClient = new Client();
-            $response = $httpClient->post(
-                $this->URL . 'v2/bank/new-applicant',
-                [
-                    RequestOptions::BODY => $dataBodyJSON,
-                    RequestOptions::HEADERS => [
-                        'User-Agent' => '',
-                        'Authorization' => $access_token,
-                        'Content-Type' => 'application/json',
-                    ],
-                ]
-            );
+        $resBody = $response->getBody()->getContents();
 
-            $resBody = $response->getBody()->getContents();
+        $resArray = json_decode($resBody, true);
 
-            $resArray = json_decode($resBody, true);
-
-            if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-                $outputArray = json_decode($output, true);
-                $this->ONBOARDING_ID = $outputArray['onboarding_id'];
-            } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-                $outputArray = json_decode($output, true);
-                $this->ONBOARDING_ID = null;
-            }
-            return $outputArray;
-        } catch (\Exception $e){
-            return 'error';
+        if ($resArray['success']) {
+            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+            $outputArray = json_decode($output, true);
+            $this->ONBOARDING_ID = $outputArray['onboarding_id'];
+        } else {
+            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+            $outputArray = json_decode($output, true);
+            $this->ONBOARDING_ID = null;
         }
+        return $outputArray;
+
     }
 
     public function step1_B_OCR_Scanner($card_type = 1, $image_type, $img_base_64)
@@ -458,7 +460,7 @@ class CTOSeKYCApi
         }
     }
 
-    public function step1_C_Landmark_v2($token, $boarding_id, $device_model='NA', $device_brand='NA', $device_mac='NA', $device_imei='NA', $platform='Web', $billing_version = 1)
+    public function step1_C_Landmark_v2($token, $boarding_id, $device_model = 'NA', $device_brand = 'NA', $device_mac = 'NA', $device_imei = 'NA', $platform = 'Web', $billing_version = 1)
     {
 
         $body = [
@@ -671,8 +673,8 @@ class CTOSeKYCApi
 
     public function step2_A_Liveness($video_type, $video_base_64)
     {
-        ini_set('max_execution_time','600'); //max_execution_time','0' <- unlimited time
-        ini_set('memory_limit','512M');
+        ini_set('max_execution_time', '600'); //max_execution_time','0' <- unlimited time
+        ini_set('memory_limit', '512M');
 
         if (!empty($this->TEXT_SIMILARITY_RESULT)) {
             $body = ["data" =>
@@ -732,7 +734,7 @@ class CTOSeKYCApi
         }
     }
 
-    public function step2_A_Liveness_v2($token, $boarding_id, $video_type, $video_base_64,  $device_model='NA', $device_brand='NA', $device_mac='NA', $platform='Web')
+    public function step2_A_Liveness_v2($token, $boarding_id, $video_type, $video_base_64, $device_model = 'NA', $device_brand = 'NA', $device_mac = 'NA', $platform = 'Web')
     {
         $body = ["data" =>
             [
