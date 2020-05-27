@@ -63,6 +63,7 @@ class CTOSeKYCApi
             [
                 RequestOptions::BODY => $dataBodyJSON,
                 RequestOptions::HEADERS => [
+                    'User-Agent' => '',
                     'Content-Type' => 'application/json',
                 ],
             ]
@@ -139,6 +140,7 @@ class CTOSeKYCApi
                 [
                     RequestOptions::BODY => $dataBodyJSON,
                     RequestOptions::HEADERS => [
+                        'User-Agent' => '',
                         'Authorization' => $access_token,
                         'Content-Type' => 'application/json',
                     ],
@@ -221,6 +223,7 @@ class CTOSeKYCApi
             [
                 RequestOptions::BODY => $dataBodyJSON,
                 RequestOptions::HEADERS => [
+                    'User-Agent' => '',
                     'Authorization' => $access_token,
                     'Content-Type' => 'application/json',
                 ],
@@ -280,6 +283,7 @@ class CTOSeKYCApi
                 [
                     RequestOptions::BODY => $dataBodyJSON,
                     RequestOptions::HEADERS => [
+                        'User-Agent' => '',
                         'Authorization' => $access_token,
                         'Content-Type' => 'application/json',
                     ],
@@ -354,6 +358,7 @@ class CTOSeKYCApi
             [
                 RequestOptions::BODY => $dataBodyJSON,
                 RequestOptions::HEADERS => [
+                    'User-Agent' => '',
                     'Authorization' => $access_token,
                     'Content-Type' => 'application/json',
                 ],
@@ -422,6 +427,7 @@ class CTOSeKYCApi
                 [
                     RequestOptions::BODY => $dataBodyJSON,
                     RequestOptions::HEADERS => [
+                        'User-Agent' => '',
                         'Authorization' => $access_token,
                         'Content-Type' => 'application/json',
                     ],
@@ -486,6 +492,7 @@ class CTOSeKYCApi
             [
                 RequestOptions::BODY => $dataBodyJSON,
                 RequestOptions::HEADERS => [
+                    'User-Agent' => '',
                     'Authorization' => $access_token,
                     'Content-Type' => 'application/json',
                 ],
@@ -558,6 +565,7 @@ class CTOSeKYCApi
                 [
                     RequestOptions::BODY => $dataBodyJSON,
                     RequestOptions::HEADERS => [
+                        'User-Agent' => '',
                         'Authorization' => $access_token,
                         'Content-Type' => 'application/json',
                     ],
@@ -635,6 +643,7 @@ class CTOSeKYCApi
             [
                 RequestOptions::BODY => $dataBodyJSON,
                 RequestOptions::HEADERS => [
+                    'User-Agent' => '',
                     'Authorization' => $access_token,
                     'Content-Type' => 'application/json',
                 ],
@@ -695,6 +704,7 @@ class CTOSeKYCApi
                 [
                     RequestOptions::BODY => $dataBodyJSON,
                     RequestOptions::HEADERS => [
+                        'User-Agent' => '',
                         'Authorization' => $access_token,
                         'Content-Type' => 'application/json',
                     ],
@@ -753,6 +763,7 @@ class CTOSeKYCApi
             [
                 RequestOptions::BODY => $dataBodyJSON,
                 RequestOptions::HEADERS => [
+                    'User-Agent' => '',
                     'Authorization' => $access_token,
                     'Content-Type' => 'application/json',
                 ],
