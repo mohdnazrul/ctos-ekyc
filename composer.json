@@ -28,10 +28,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "MohdNazrul\\CTOSEKYCLaravel\\CTOSEKYCServiceProvider"
+                "MohdNazrul\\CTOSEKYCLaravel\\CTOSeKYCServiceProvider"
             ],
             "aliases": {
-                "CTOSEKYC": "MohdNazrul\\CTOSEKYCLaravel\\CTOSEKYCApiFacade"
+                "CTOSEKYC": "MohdNazrul\\CTOSEKYCLaravel\\CTOSeKYCApiFacade"
             }
         }
     }
