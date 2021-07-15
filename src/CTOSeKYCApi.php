@@ -324,7 +324,7 @@ class CTOSeKYCApi
                 ]
             ];
 
-            Log::info(json_encode($body));
+            // Log::info(json_encode($body));
 
             $bodyJSON = json_encode($body, true);
             $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -422,7 +422,7 @@ class CTOSeKYCApi
             ]
         ];
 
-        Log::info(json_encode($body));
+        // Log::info(json_encode($body));
 
         $bodyJSON = json_encode($body, true);
         $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -865,7 +865,7 @@ class CTOSeKYCApi
                 ]
             ];
 
-            Log::info(json_encode($body));
+            // Log::info(json_encode($body));
 
             $bodyJSON = json_encode($body, true);
             $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -941,7 +941,7 @@ class CTOSeKYCApi
             ]
         ];
 
-        Log::info(json_encode($body));
+        // Log::info(json_encode($body));
 
         $bodyJSON = json_encode($body, true);
         $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
