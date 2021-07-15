@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
+use Illuminate\Support\Facades\Log;
 
 class CTOSeKYCApi
 {
@@ -46,6 +47,7 @@ class CTOSeKYCApi
             "device_mac" => $device_mac,
             "package_name" => $this->PACKAGE_NAME,
         ];
+        Log::info(json_encode($body));
 
         $bodyJSON = json_encode($body, true);
         $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -75,25 +77,36 @@ class CTOSeKYCApi
             if ($resArray['success']) {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
+                Log::info(json_encode($outputArray));
                 $this->TOKEN = $outputArray['access_token'];
             } else {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                Log::error(json_encode($output));
                 $outputArray = 'error';
                 $this->TOKEN = null;
             }
 
             return $outputArray;
         } catch (\Exception $e) {
+            Log::error(json_encode($e));
             return 'error';
         }
-
-
     }
 
-    public function step1_A_New_Applicant($ref_id, $ic_no, $dob, $nationality, $citizenship,
-                                          $address, $fullName, $religion = 'NA', $gender, $place_of_birth,
-                                          $product_name, $product_desc)
-    {
+    public function step1_A_New_Applicant(
+        $ref_id,
+        $ic_no,
+        $dob,
+        $nationality,
+        $citizenship,
+        $address,
+        $fullName,
+        $religion = 'NA',
+        $gender,
+        $place_of_birth,
+        $product_name,
+        $product_desc
+    ) {
 
         ini_set('max_execution_time', '600'); //max_execution_time','0' <- unlimited time
         ini_set('memory_limit', '512M');
@@ -127,6 +140,7 @@ class CTOSeKYCApi
                     "applicant_registration_date" => Carbon::now()->format('Y-m-d h:i:s')
                 ]
             ];
+            Log::info(json_encode($body));
 
             $bodyJSON = json_encode($body, true);
             $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -139,49 +153,66 @@ class CTOSeKYCApi
 
             $access_token = "access_token " . $this->TOKEN;
 
+            try {
+                $httpClient = new Client();
+                $response = $httpClient->post(
+                    $this->URL . 'v2/bank/new-applicant',
+                    [
+                        RequestOptions::BODY => $dataBodyJSON,
+                        RequestOptions::HEADERS => [
+                            'User-Agent' => '',
+                            'Authorization' => $access_token,
+                            'Content-Type' => 'application/json',
+                        ],
+                    ]
+                );
 
-            $httpClient = new Client();
-            $response = $httpClient->post(
-                $this->URL . 'v2/bank/new-applicant',
-                [
-                    RequestOptions::BODY => $dataBodyJSON,
-                    RequestOptions::HEADERS => [
-                        'User-Agent' => '',
-                        'Authorization' => $access_token,
-                        'Content-Type' => 'application/json',
-                    ],
-                ]
-            );
+                $resBody = $response->getBody()->getContents();
 
-            $resBody = $response->getBody()->getContents();
+                $resArray = json_decode($resBody, true);
 
-            $resArray = json_decode($resBody, true);
+                if ($resArray['success']) {
+                    $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                    $outputArray = json_decode($output, true);
+                    Log::info(json_encode($outputArray));
+                    $this->ONBOARDING_ID = $outputArray['onboarding_id'];
+                } else {
+                    $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                    $outputArray = json_decode($output, true);
+                    Log::error(json_encode($outputArray));
+                    $this->ONBOARDING_ID = null;
+                }
 
-            if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-                $outputArray = json_decode($output, true);
-                $this->ONBOARDING_ID = $outputArray['onboarding_id'];
-            } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-                $outputArray = json_decode($output, true);
-                $this->ONBOARDING_ID = null;
+                return $outputArray;
+            } catch (\Exception $e) {
+                Log::error(json_encode($e));
+                return 'error';
             }
-
-            return $outputArray;
         } else {
-            return [
+            $message = [
                 'status' => 'error',
                 'message' => "please get the token first using call method getToken with params"
             ];
-
+            Log::error(json_encode($message));
+            return $message;
         }
-
     }
 
-    public function step1_A_New_Applicant_v2($token, $ref_id, $ic_no, $dob, $nationality, $citizenship,
-                                             $address, $fullName, $religion = 'NA', $gender, $place_of_birth,
-                                             $product_name, $product_desc)
-    {
+    public function step1_A_New_Applicant_v2(
+        $token,
+        $ref_id,
+        $ic_no,
+        $dob,
+        $nationality,
+        $citizenship,
+        $address,
+        $fullName,
+        $religion = 'NA',
+        $gender,
+        $place_of_birth,
+        $product_name,
+        $product_desc
+    ) {
         $this->REF_ID = $ref_id;
 
         $body = [
@@ -210,6 +241,7 @@ class CTOSeKYCApi
                 "applicant_registration_date" => Carbon::now()->format('Y-m-d h:i:s')
             ]
         ];
+        Log::info(json_encode($body));
 
         $bodyJSON = json_encode($body, true);
         $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -222,41 +254,48 @@ class CTOSeKYCApi
 
         $access_token = "access_token " . $token;
 
-        $httpClient = new Client();
-        $response = $httpClient->post(
-            $this->URL . 'v2/bank/new-applicant',
-            [
-                RequestOptions::BODY => $dataBodyJSON,
-                RequestOptions::HEADERS => [
-                    'User-Agent' => '',
-                    'Authorization' => $access_token,
-                    'Content-Type' => 'application/json',
-                ],
-            ]
-        );
+        try {
+            $httpClient = new Client();
+            $response = $httpClient->post(
+                $this->URL . 'v2/bank/new-applicant',
+                [
+                    RequestOptions::BODY => $dataBodyJSON,
+                    RequestOptions::HEADERS => [
+                        'User-Agent' => '',
+                        'Authorization' => $access_token,
+                        'Content-Type' => 'application/json',
+                    ],
+                ]
+            );
 
-        $resBody = $response->getBody()->getContents();
+            $resBody = $response->getBody()->getContents();
 
-        $resArray = json_decode($resBody, true);
+            $resArray = json_decode($resBody, true);
 
-        if ($resArray['success']) {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $outputArray = json_decode($output, true);
-            $this->ONBOARDING_ID = $outputArray['onboarding_id'];
-        } else {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $outputArray = json_decode($output, true);
-            $this->ONBOARDING_ID = null;
+            if ($resArray['success']) {
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $outputArray = json_decode($output, true);
+                Log::info(json_encode($outputArray));
+                $this->ONBOARDING_ID = $outputArray['onboarding_id'];
+            } else {
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $outputArray = json_decode($output, true);
+                Log::error(json_encode($outputArray));
+                $this->ONBOARDING_ID = null;
+            }
+            return $outputArray;
+        } catch (\Exception $e) {
+            Log::error(json_encode($e));
+            return 'error';
         }
-        return $outputArray;
-
     }
 
     public function step1_B_OCR_Scanner($card_type = 1, $image_type, $img_base_64)
     {
         if (!empty($this->ONBOARDING_ID)) {
 
-            $body = ['ocr' =>
+            $body = [
+                'ocr' =>
                 [
                     "onboarding_id" => $this->ONBOARDING_ID,
                     "card_type" => $card_type,
@@ -270,6 +309,8 @@ class CTOSeKYCApi
                 ]
             ];
 
+            Log::info(json_encode($body));
+
             $bodyJSON = json_encode($body, true);
             $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
             $dataBody = [
@@ -280,6 +321,101 @@ class CTOSeKYCApi
             $dataBodyJSON = json_encode($dataBody, true);
 
             $access_token = "access_token " . $this->TOKEN;
+
+            try {
+                $httpClient = new Client();
+                $response = $httpClient->post(
+                    $this->URL . 'v2/webservices/ocr-scanner',
+                    [
+                        RequestOptions::BODY => $dataBodyJSON,
+                        RequestOptions::HEADERS => [
+                            'User-Agent' => '',
+                            'Authorization' => $access_token,
+                            'Content-Type' => 'application/json',
+                        ],
+                    ]
+                );
+
+                $resBody = $response->getBody()->getContents();
+
+                $resArray = json_decode($resBody, true);
+
+                if ($resArray['success']) {
+                    $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                    $outputArray = json_decode($output, true);
+                    Log::info(json_encode($outputArray));
+                    $ocr_output = $outputArray['ocr_result'];
+                    if ($card_type == 1) {
+                        $this->OCR_RESULT_1 = $ocr_output;
+                    } else {
+                        $this->OCR_RESULT_2 = $ocr_output;
+                    }
+                } else {
+                    $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                    $outputArray = json_decode($output, true);
+                    Log::error(json_encode($outputArray));
+                    if ($card_type == 1) {
+                        $this->OCR_RESULT_1 = null;
+                    } else {
+                        $this->OCR_RESULT_2 = null;
+                    }
+                }
+
+                return $outputArray;
+            } catch (\Exception $e) {
+                Log::error(json_encode($e));
+                return 'error';
+            }
+        } else {
+            $message = [
+                'status' => 'error',
+                'message' => "please go to the step 1 - A - register new applicant with params"
+            ];
+            Log::error(json_encode($message));
+            return $message;
+        }
+    }
+
+    public function step1_B_OCR_Scanner_v2(
+        $token,
+        $boarding_id,
+        $card_type = 1,
+        $image_type,
+        $img_base_64,
+        $device_mac = 'NA',
+        $device_model = 'NA',
+        $platform = 'Web'
+    ) {
+
+        $body = [
+            'ocr' =>
+            [
+                "onboarding_id" => $boarding_id,
+                "card_type" => $card_type,
+                "request_time" => Carbon::now()->format('Y-m-d h:i:s'),
+                "device_mac" => $device_mac,
+                "device_model" => $device_model,
+                "platform" => $platform, // Android / Ios / Web
+                "api_key" => $this->API_KEY,
+                "id_image" => 'data:image/' . $image_type . ';base64,' . $img_base_64,
+                'api_key' => $this->API_KEY
+            ]
+        ];
+
+        Log::info(json_encode($body));
+
+        $bodyJSON = json_encode($body, true);
+        $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+        $dataBody = [
+            'data' => base64_encode($encrypted),
+            'api_key' => $this->API_KEY
+        ];
+
+        $dataBodyJSON = json_encode($dataBody, true);
+
+        $access_token = "access_token " . $token;
+
+        try {
             $httpClient = new Client();
             $response = $httpClient->post(
                 $this->URL . 'v2/webservices/ocr-scanner',
@@ -300,6 +436,7 @@ class CTOSeKYCApi
             if ($resArray['success']) {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
+                Log::info(json_encode($outputArray));
                 $ocr_output = $outputArray['ocr_result'];
                 if ($card_type == 1) {
                     $this->OCR_RESULT_1 = $ocr_output;
@@ -309,6 +446,7 @@ class CTOSeKYCApi
             } else {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
+                Log::error(json_encode($outputArray));
                 if ($card_type == 1) {
                     $this->OCR_RESULT_1 = null;
                 } else {
@@ -317,82 +455,10 @@ class CTOSeKYCApi
             }
 
             return $outputArray;
-
-        } else {
-            return [
-                'status' => 'error',
-                'message' => "please go to the step 1 - A - register new applicant with params"
-            ];
+        } catch (\Exception $e) {
+            Log::error(json_encode($e));
+            return 'error';
         }
-
-    }
-
-    public function step1_B_OCR_Scanner_v2($token, $boarding_id, $card_type = 1, $image_type, $img_base_64, $device_mac = 'NA', $device_model = 'NA',
-                                           $platform = 'Web')
-    {
-
-        $body = ['ocr' =>
-            [
-                "onboarding_id" => $boarding_id,
-                "card_type" => $card_type,
-                "request_time" => Carbon::now()->format('Y-m-d h:i:s'),
-                "device_mac" => $device_mac,
-                "device_model" => $device_model,
-                "platform" => $platform, // Android / Ios / Web
-                "api_key" => $this->API_KEY,
-                "id_image" => 'data:image/' . $image_type . ';base64,' . $img_base_64,
-                'api_key' => $this->API_KEY
-            ]
-        ];
-
-        $bodyJSON = json_encode($body, true);
-        $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-        $dataBody = [
-            'data' => base64_encode($encrypted),
-            'api_key' => $this->API_KEY
-        ];
-
-        $dataBodyJSON = json_encode($dataBody, true);
-
-        $access_token = "access_token " . $token;
-        $httpClient = new Client();
-        $response = $httpClient->post(
-            $this->URL . 'v2/webservices/ocr-scanner',
-            [
-                RequestOptions::BODY => $dataBodyJSON,
-                RequestOptions::HEADERS => [
-                    'User-Agent' => '',
-                    'Authorization' => $access_token,
-                    'Content-Type' => 'application/json',
-                ],
-            ]
-        );
-
-        $resBody = $response->getBody()->getContents();
-
-        $resArray = json_decode($resBody, true);
-
-        if ($resArray['success']) {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $outputArray = json_decode($output, true);
-            $ocr_output = $outputArray['ocr_result'];
-            if ($card_type == 1) {
-                $this->OCR_RESULT_1 = $ocr_output;
-            } else {
-                $this->OCR_RESULT_2 = $ocr_output;
-            }
-        } else {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $outputArray = json_decode($output, true);
-            if ($card_type == 1) {
-                $this->OCR_RESULT_1 = null;
-            } else {
-                $this->OCR_RESULT_2 = null;
-            }
-        }
-
-        return $outputArray;
-
     }
 
     public function step1_C_Landmark($device_model, $device_brand, $device_mac, $device_imei, $platform, $billing_version = 1)
@@ -413,6 +479,8 @@ class CTOSeKYCApi
                 "billing_version" => $billing_version,
             ];
 
+            Log::info(json_encode($body));
+
             $bodyJSON = json_encode($body, true);
             $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
             $dataBody = [
@@ -424,39 +492,47 @@ class CTOSeKYCApi
 
             $access_token = "access_token " . $this->TOKEN;
 
-            $httpClient = new Client();
-            $response = $httpClient->post(
-                $this->URL . 'v2/landmark/perform-landmark',
-                [
-                    RequestOptions::BODY => $dataBodyJSON,
-                    RequestOptions::HEADERS => [
-                        'User-Agent' => '',
-                        'Authorization' => $access_token,
-                        'Content-Type' => 'application/json',
-                    ],
-                ]
-            );
+            try {
+                $httpClient = new Client();
+                $response = $httpClient->post(
+                    $this->URL . 'v2/landmark/perform-landmark',
+                    [
+                        RequestOptions::BODY => $dataBodyJSON,
+                        RequestOptions::HEADERS => [
+                            'User-Agent' => '',
+                            'Authorization' => $access_token,
+                            'Content-Type' => 'application/json',
+                        ],
+                    ]
+                );
 
-            $resBody = $response->getBody()->getContents();
-            $resArray = json_decode($resBody, true);
+                $resBody = $response->getBody()->getContents();
+                $resArray = json_decode($resBody, true);
 
-            if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-                $outputArray = json_decode($output, true);
-                $overall_Score = $outputArray['overall_Score'];
-                $this->OVERALL_SCORE = $overall_Score;
-            } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-                $outputArray = json_decode($output, true);
-                $this->OVERALL_SCORE = null;
+                if ($resArray['success']) {
+                    $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                    $outputArray = json_decode($output, true);
+                    Log::info(json_encode($outputArray));
+                    $overall_Score = $outputArray['overall_Score'];
+                    $this->OVERALL_SCORE = $overall_Score;
+                } else {
+                    $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                    $outputArray = json_decode($output, true);
+                    Log::error(json_encode($outputArray));
+                    $this->OVERALL_SCORE = null;
+                }
+                return $outputArray;
+            } catch (\Exception $e) {
+                Log::error(json_encode($e));
+                return 'error';
             }
-            return $outputArray;
-
         } else {
-            return [
+            $message = [
                 'status' => 'error',
                 'message' => "please go to the step 1 - B - step1_B_OCR_Scanner with params"
             ];
+            Log::error(json_encode($message));
+            return $message;
         }
     }
 
@@ -478,6 +554,8 @@ class CTOSeKYCApi
             "date" => Carbon::now()->format('Y-m-d'),
         ];
 
+        Log::info(json_encode($body));
+
         $bodyJSON = json_encode($body, true);
         $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
         $dataBody = [
@@ -489,40 +567,57 @@ class CTOSeKYCApi
 
         $access_token = "access_token " . $token;
 
-        $httpClient = new Client();
-        $response = $httpClient->post(
-            $this->URL . 'v2/landmark/perform-landmark',
-            [
-                RequestOptions::BODY => $dataBodyJSON,
-                RequestOptions::HEADERS => [
-                    'User-Agent' => '',
-                    'Authorization' => $access_token,
-                    'Content-Type' => 'application/json',
-                ],
-            ]
-        );
+        try {
+            $httpClient = new Client();
+            $response = $httpClient->post(
+                $this->URL . 'v2/landmark/perform-landmark',
+                [
+                    RequestOptions::BODY => $dataBodyJSON,
+                    RequestOptions::HEADERS => [
+                        'User-Agent' => '',
+                        'Authorization' => $access_token,
+                        'Content-Type' => 'application/json',
+                    ],
+                ]
+            );
 
-        $resBody = $response->getBody()->getContents();
-        $resArray = json_decode($resBody, true);
+            $resBody = $response->getBody()->getContents();
+            $resArray = json_decode($resBody, true);
 
-        if ($resArray['success']) {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $outputArray = json_decode($output, true);
-            $overall_Score = $outputArray['overall_Score'];
-            $this->OVERALL_SCORE = $overall_Score;
-        } else {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $outputArray = json_decode($output, true);
-            $this->OVERALL_SCORE = null;
+            if ($resArray['success']) {
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $outputArray = json_decode($output, true);
+                Log::info(json_encode($outputArray));
+                $overall_Score = $outputArray['overall_Score'];
+                $this->OVERALL_SCORE = $overall_Score;
+            } else {
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $outputArray = json_decode($output, true);
+                Log::error(json_encode($outputArray));
+                $this->OVERALL_SCORE = null;
+            }
+            return $outputArray;
+        } catch (\Exception $e) {
+            Log::error(json_encode($e));
+            return 'error';
         }
-        return $outputArray;
-
-
     }
 
-    public function step1_D_Save_Data($ic_no, $dob, $nationality, $citizenship, $address, $full_name, $religion = 'NA', $gender, $place_of_birth,
-                                      $device_imei, $device_mac, $product_name, $product_desc)
-    {
+    public function step1_D_Save_Data(
+        $ic_no,
+        $dob,
+        $nationality,
+        $citizenship,
+        $address,
+        $full_name,
+        $religion = 'NA',
+        $gender,
+        $place_of_birth,
+        $device_imei,
+        $device_mac,
+        $product_name,
+        $product_desc
+    ) {
         if (!empty($this->OVERALL_SCORE)) {
             $body = [
                 "id_info" => [
@@ -553,6 +648,8 @@ class CTOSeKYCApi
                 ]
             ];
 
+            Log::info(json_encode($body));
+
             $bodyJSON = json_encode($body, true);
             $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
             $dataBody = [
@@ -562,46 +659,68 @@ class CTOSeKYCApi
 
             $dataBodyJSON = json_encode($dataBody);
             $access_token = "access_token " . $this->TOKEN;
-            $httpClient = new Client();
-            $response = $httpClient->post(
-                $this->URL . 'v2/webservices/save-data',
-                [
-                    RequestOptions::BODY => $dataBodyJSON,
-                    RequestOptions::HEADERS => [
-                        'User-Agent' => '',
-                        'Authorization' => $access_token,
-                        'Content-Type' => 'application/json',
-                    ],
-                ]
-            );
 
-            $resBody = $response->getBody()->getContents();
+            try {
+                $httpClient = new Client();
+                $response = $httpClient->post(
+                    $this->URL . 'v2/webservices/save-data',
+                    [
+                        RequestOptions::BODY => $dataBodyJSON,
+                        RequestOptions::HEADERS => [
+                            'User-Agent' => '',
+                            'Authorization' => $access_token,
+                            'Content-Type' => 'application/json',
+                        ],
+                    ]
+                );
+                $resBody = $response->getBody()->getContents();
 
-            $resArray = json_decode($resBody, true);
+                $resArray = json_decode($resBody, true);
 
-            if ($resArray['success']) {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-                $outputArray = json_decode($output, true);
-                $this->TEXT_SIMILARITY_RESULT = $outputArray['text_similarity_result'];
-            } else {
-                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-                $outputArray = json_decode($output, true);
-                $this->TEXT_SIMILARITY_RESULT = null;
+                if ($resArray['success']) {
+                    $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                    $outputArray = json_decode($output, true);
+                    Log::info(json_encode($outputArray));
+                    $this->TEXT_SIMILARITY_RESULT = $outputArray['text_similarity_result'];
+                } else {
+                    $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                    $outputArray = json_decode($output, true);
+                    Log::error(json_encode($outputArray));
+                    $this->TEXT_SIMILARITY_RESULT = null;
+                }
+
+                return $outputArray;
+            } catch (\Exception $e) {
+                Log::error(json_encode($e));
+                return 'error';
             }
-
-            return $outputArray;
-
         } else {
-            return [
+            $message = [
                 'status' => 'error',
                 'message' => "please go to the step 1 - C - Do the landmark for scoring front and back ic with params"
             ];
+            Log::error(json_encode($message));
+            return $message;
         }
     }
 
-    public function step1_D_Save_Data_v2($token, $boarding_id, $ic_no, $dob, $nationality, $citizenship, $address, $full_name, $religion = 'NA', $gender, $place_of_birth,
-                                         $device_imei, $device_mac, $product_name, $product_desc)
-    {
+    public function step1_D_Save_Data_v2(
+        $token,
+        $boarding_id,
+        $ic_no,
+        $dob,
+        $nationality,
+        $citizenship,
+        $address,
+        $full_name,
+        $religion = 'NA',
+        $gender,
+        $place_of_birth,
+        $device_imei,
+        $device_mac,
+        $product_name,
+        $product_desc
+    ) {
         $body = [
             "id_info" => [
                 "extra" => $this->security_signature_token_landmark_v2($boarding_id, $device_mac, $device_imei),
@@ -631,6 +750,8 @@ class CTOSeKYCApi
             ]
         ];
 
+        Log::info(json_encode($body));
+
         $bodyJSON = json_encode($body, true);
         $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
         $dataBody = [
@@ -640,35 +761,41 @@ class CTOSeKYCApi
 
         $dataBodyJSON = json_encode($dataBody);
         $access_token = "access_token " . $token;
-        $httpClient = new Client();
-        $response = $httpClient->post(
-            $this->URL . 'v2/webservices/save-data',
-            [
-                RequestOptions::BODY => $dataBodyJSON,
-                RequestOptions::HEADERS => [
-                    'User-Agent' => '',
-                    'Authorization' => $access_token,
-                    'Content-Type' => 'application/json',
-                ],
-            ]
-        );
 
-        $resBody = $response->getBody()->getContents();
+        try {
+            $httpClient = new Client();
+            $response = $httpClient->post(
+                $this->URL . 'v2/webservices/save-data',
+                [
+                    RequestOptions::BODY => $dataBodyJSON,
+                    RequestOptions::HEADERS => [
+                        'User-Agent' => '',
+                        'Authorization' => $access_token,
+                        'Content-Type' => 'application/json',
+                    ],
+                ]
+            );
+            $resBody = $response->getBody()->getContents();
 
-        $resArray = json_decode($resBody, true);
+            $resArray = json_decode($resBody, true);
 
-        if ($resArray['success']) {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $outputArray = json_decode($output, true);
-            $this->TEXT_SIMILARITY_RESULT = $outputArray['text_similarity_result'];
-        } else {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $outputArray = json_decode($output, true);
-            $this->TEXT_SIMILARITY_RESULT = null;
+            if ($resArray['success']) {
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $outputArray = json_decode($output, true);
+                Log::info(json_encode($outputArray));
+                $this->TEXT_SIMILARITY_RESULT = $outputArray['text_similarity_result'];
+            } else {
+                $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                $outputArray = json_decode($output, true);
+                Log::error(json_encode($outputArray));
+                $this->TEXT_SIMILARITY_RESULT = null;
+            }
+
+            return $outputArray;
+        } catch (\Exception $e) {
+            Log::error(json_encode($e));
+            return 'error';
         }
-
-        return $outputArray;
-
     }
 
     public function step2_A_Liveness($video_type, $video_base_64)
@@ -677,7 +804,8 @@ class CTOSeKYCApi
         ini_set('memory_limit', '512M');
 
         if (!empty($this->TEXT_SIMILARITY_RESULT)) {
-            $body = ["data" =>
+            $body = [
+                "data" =>
                 [
                     "api_key" => $this->API_KEY,
                     "onboarding_id" => $this->ONBOARDING_ID,
@@ -690,6 +818,8 @@ class CTOSeKYCApi
                 ]
             ];
 
+            Log::info(json_encode($body));
+
             $bodyJSON = json_encode($body, true);
             $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
             $dataBody = [
@@ -701,6 +831,77 @@ class CTOSeKYCApi
 
             $access_token = "access_token " . $this->TOKEN;
 
+            try {
+                $httpClient = new Client();
+                $response = $httpClient->post(
+                    $this->URL . 'v2/webservices/liveness',
+                    [
+                        RequestOptions::BODY => $dataBodyJSON,
+                        RequestOptions::HEADERS => [
+                            'User-Agent' => '',
+                            'Authorization' => $access_token,
+                            'Content-Type' => 'application/json',
+                        ],
+                    ]
+                );
+                $resBody = $response->getBody()->getContents();
+
+                $resArray = json_decode($resBody, true);
+
+                if ($resArray['success']) {
+                    $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                    $outputArray = json_decode($output, true);
+                    Log::info(json_encode($outputArray));
+                } else {
+                    $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+                    $outputArray = json_decode($output, true);
+                    Log::error(json_encode($outputArray));
+                }
+                return $outputArray;
+            } catch (\Exception $e) {
+                Log::error(json_encode($e));
+                return 'error';
+            }
+        } else {
+            $message = [
+                'status' => 'error',
+                'message' => "please go to the step 1 - D - save data with params"
+            ];
+            Log::error(json_encode($message));
+            return $message;
+        }
+    }
+
+    public function step2_A_Liveness_v2($token, $boarding_id, $video_type, $video_base_64, $device_model = 'NA', $device_brand = 'NA', $device_mac = 'NA', $platform = 'Web')
+    {
+        $body = [
+            "data" =>
+            [
+                "api_key" => $this->API_KEY,
+                "onboarding_id" => $boarding_id,
+                "request_time" => Carbon::now()->format('Y-m-d h:i:s'),
+                "device_model" => $device_model,
+                "device_brand" => $device_brand,
+                "device_mac" => $device_mac,
+                "platform" => $platform,
+                "video" => "data:video/" . $video_type . ";base64," . $video_base_64,
+            ]
+        ];
+
+        Log::info(json_encode($body));
+
+        $bodyJSON = json_encode($body, true);
+        $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
+        $dataBody = [
+            'data' => base64_encode($encrypted),
+            'api_key' => $this->API_KEY
+        ];
+
+        $dataBodyJSON = json_encode($dataBody);
+
+        $access_token = "access_token " . $token;
+
+        try {
             $httpClient = new Client();
             $response = $httpClient->post(
                 $this->URL . 'v2/webservices/liveness',
@@ -721,71 +922,17 @@ class CTOSeKYCApi
             if ($resArray['success']) {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
+                Log::info(json_encode($outputArray));
             } else {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
+                Log::error(json_encode($outputArray));
             }
             return $outputArray;
-        } else {
-            return [
-                'status' => 'error',
-                'message' => "please go to the step 1 - D - save data with params"
-            ];
+        } catch (\Exception $e) {
+            Log::error(json_encode($e));
+            return 'error';
         }
-    }
-
-    public function step2_A_Liveness_v2($token, $boarding_id, $video_type, $video_base_64, $device_model = 'NA', $device_brand = 'NA', $device_mac = 'NA', $platform = 'Web')
-    {
-        $body = ["data" =>
-            [
-                "api_key" => $this->API_KEY,
-                "onboarding_id" => $boarding_id,
-                "request_time" => Carbon::now()->format('Y-m-d h:i:s'),
-                "device_model" => $device_model,
-                "device_brand" => $device_brand,
-                "device_mac" => $device_mac,
-                "platform" => $platform,
-                "video" => "data:video/" . $video_type . ";base64," . $video_base_64,
-            ]
-        ];
-
-        $bodyJSON = json_encode($body, true);
-        $encrypted = openssl_encrypt($bodyJSON, $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-        $dataBody = [
-            'data' => base64_encode($encrypted),
-            'api_key' => $this->API_KEY
-        ];
-
-        $dataBodyJSON = json_encode($dataBody);
-
-        $access_token = "access_token " . $token;
-
-        $httpClient = new Client();
-        $response = $httpClient->post(
-            $this->URL . 'v2/webservices/liveness',
-            [
-                RequestOptions::BODY => $dataBodyJSON,
-                RequestOptions::HEADERS => [
-                    'User-Agent' => '',
-                    'Authorization' => $access_token,
-                    'Content-Type' => 'application/json',
-                ],
-            ]
-        );
-
-        $resBody = $response->getBody()->getContents();
-
-        $resArray = json_decode($resBody, true);
-
-        if ($resArray['success']) {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $outputArray = json_decode($output, true);
-        } else {
-            $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-            $outputArray = json_decode($output, true);
-        }
-        return $outputArray;
-
     }
 
     private function security_signature_token($ref_id)
@@ -809,7 +956,6 @@ class CTOSeKYCApi
         $strSecurity = $api_key . $device_mac . $onboarding_id . $md5Key . $date . $device_imei . $package_name;
         $md5_sst = base64_encode(md5($strSecurity));
         return $md5_sst;
-
     }
 
     private function security_signature_token_landmark_v2($boarding_id, $device_mac = 'NA', $device_imei = 'NA')
@@ -822,8 +968,5 @@ class CTOSeKYCApi
         $strSecurity = $api_key . $device_mac . $onboarding_id . $md5Key . $date . $device_imei . $package_name;
         $md5_sst = base64_encode(md5($strSecurity));
         return $md5_sst;
-
     }
-
-
 }
