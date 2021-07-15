@@ -74,6 +74,8 @@ class CTOSeKYCApi
 
             $resBody = $response->getBody()->getContents();
             $resArray = json_decode($resBody, true);
+            Log::info(json_encode($resArray));
+
             if ($resArray['success']) {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
@@ -168,8 +170,8 @@ class CTOSeKYCApi
                 );
 
                 $resBody = $response->getBody()->getContents();
-
                 $resArray = json_decode($resBody, true);
+                Log::info(json_encode($resArray));
 
                 if ($resArray['success']) {
                     $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -269,8 +271,8 @@ class CTOSeKYCApi
             );
 
             $resBody = $response->getBody()->getContents();
-
             $resArray = json_decode($resBody, true);
+            Log::info(json_encode($resArray));
 
             if ($resArray['success']) {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -337,8 +339,8 @@ class CTOSeKYCApi
                 );
 
                 $resBody = $response->getBody()->getContents();
-
                 $resArray = json_decode($resBody, true);
+                Log::info(json_encode($resArray));
 
                 if ($resArray['success']) {
                     $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -432,6 +434,7 @@ class CTOSeKYCApi
             $resBody = $response->getBody()->getContents();
 
             $resArray = json_decode($resBody, true);
+            Log::info(json_encode($resArray));
 
             if ($resArray['success']) {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -508,6 +511,7 @@ class CTOSeKYCApi
 
                 $resBody = $response->getBody()->getContents();
                 $resArray = json_decode($resBody, true);
+                Log::info(json_encode($resArray));
 
                 if ($resArray['success']) {
                     $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -583,6 +587,7 @@ class CTOSeKYCApi
 
             $resBody = $response->getBody()->getContents();
             $resArray = json_decode($resBody, true);
+            Log::info(json_encode($resArray));
 
             if ($resArray['success']) {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -676,6 +681,7 @@ class CTOSeKYCApi
                 $resBody = $response->getBody()->getContents();
 
                 $resArray = json_decode($resBody, true);
+                Log::info(json_encode($resArray));
 
                 if ($resArray['success']) {
                     $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -778,6 +784,7 @@ class CTOSeKYCApi
             $resBody = $response->getBody()->getContents();
 
             $resArray = json_decode($resBody, true);
+            Log::info(json_encode($resArray));
 
             if ($resArray['success']) {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -847,6 +854,7 @@ class CTOSeKYCApi
                 $resBody = $response->getBody()->getContents();
 
                 $resArray = json_decode($resBody, true);
+                Log::info(json_encode($resArray));
 
                 if ($resArray['success']) {
                     $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
@@ -918,6 +926,7 @@ class CTOSeKYCApi
             $resBody = $response->getBody()->getContents();
 
             $resArray = json_decode($resBody, true);
+            Log::info(json_encode($resArray));
 
             if ($resArray['success']) {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
