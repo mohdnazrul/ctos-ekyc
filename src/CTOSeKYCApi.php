@@ -83,15 +83,19 @@ class CTOSeKYCApi
                 $this->TOKEN = $outputArray['access_token'];
             } else {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
-                Log::error(json_encode($output));
-                $outputArray = 'error';
+                $outputArray = json_decode($output, true);
+                $outputArray['error'] = true;
+                Log::error(json_encode($outputArray));
                 $this->TOKEN = null;
             }
 
             return $outputArray;
         } catch (\Exception $e) {
             Log::error(json_encode($e));
-            return 'error';
+            return [
+                'error' => true,
+                'message_error' => $e,
+            ];
         }
     }
 
@@ -181,6 +185,7 @@ class CTOSeKYCApi
                 } else {
                     $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                     $outputArray = json_decode($output, true);
+                    $outputArray['error'] = true;
                     Log::error(json_encode($outputArray));
                     $this->ONBOARDING_ID = null;
                 }
@@ -188,10 +193,14 @@ class CTOSeKYCApi
                 return $outputArray;
             } catch (\Exception $e) {
                 Log::error(json_encode($e));
-                return 'error';
+                return [
+                    'error' => true,
+                    'error_mesage' => $e
+                ];
             }
         } else {
             $message = [
+                'error' => true,
                 'status' => 'error',
                 'message' => "please get the token first using call method getToken with params"
             ];
@@ -282,13 +291,17 @@ class CTOSeKYCApi
             } else {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
+                $outputArray['error'] = true;
                 Log::error(json_encode($outputArray));
                 $this->ONBOARDING_ID = null;
             }
             return $outputArray;
         } catch (\Exception $e) {
             Log::error(json_encode($e));
-            return 'error';
+            return [
+                'error' => true,
+                'error_message' => $e
+            ];
         }
     }
 
@@ -355,6 +368,7 @@ class CTOSeKYCApi
                 } else {
                     $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                     $outputArray = json_decode($output, true);
+                    $outputArray['error'] = true;
                     Log::error(json_encode($outputArray));
                     if ($card_type == 1) {
                         $this->OCR_RESULT_1 = null;
@@ -366,10 +380,14 @@ class CTOSeKYCApi
                 return $outputArray;
             } catch (\Exception $e) {
                 Log::error(json_encode($e));
-                return 'error';
+                return [
+                    'error' => true,
+                    'message_error' => $e
+                ];
             }
         } else {
             $message = [
+                'error' => true,
                 'status' => 'error',
                 'message' => "please go to the step 1 - A - register new applicant with params"
             ];
@@ -449,6 +467,7 @@ class CTOSeKYCApi
             } else {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
+                $outputArray['error'] = true;
                 Log::error(json_encode($outputArray));
                 if ($card_type == 1) {
                     $this->OCR_RESULT_1 = null;
@@ -460,7 +479,10 @@ class CTOSeKYCApi
             return $outputArray;
         } catch (\Exception $e) {
             Log::error(json_encode($e));
-            return 'error';
+            return [
+                'error' => true,
+                'error_message' => $e
+            ];
         }
     }
 
@@ -522,16 +544,21 @@ class CTOSeKYCApi
                 } else {
                     $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                     $outputArray = json_decode($output, true);
+                    $outputArray['error'] = true;
                     Log::error(json_encode($outputArray));
                     $this->OVERALL_SCORE = null;
                 }
                 return $outputArray;
             } catch (\Exception $e) {
                 Log::error(json_encode($e));
-                return 'error';
+                return [
+                    'error' => true,
+                    'error_message' => $e
+                ];
             }
         } else {
             $message = [
+                'error' => true,
                 'status' => 'error',
                 'message' => "please go to the step 1 - B - step1_B_OCR_Scanner with params"
             ];
@@ -598,13 +625,17 @@ class CTOSeKYCApi
             } else {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
+                $outputArray['error'] = true;
                 Log::error(json_encode($outputArray));
                 $this->OVERALL_SCORE = null;
             }
             return $outputArray;
         } catch (\Exception $e) {
             Log::error(json_encode($e));
-            return 'error';
+            return [
+                'error' => true,
+                'error_message' => $e
+            ];
         }
     }
 
@@ -691,6 +722,7 @@ class CTOSeKYCApi
                 } else {
                     $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                     $outputArray = json_decode($output, true);
+                    $outputArray['error'] = true;
                     Log::error(json_encode($outputArray));
                     $this->TEXT_SIMILARITY_RESULT = null;
                 }
@@ -698,10 +730,14 @@ class CTOSeKYCApi
                 return $outputArray;
             } catch (\Exception $e) {
                 Log::error(json_encode($e));
-                return 'error';
+                return [
+                    'error' => true,
+                    'error_message' => $e
+                ];
             }
         } else {
             $message = [
+                'error' => true,
                 'status' => 'error',
                 'message' => "please go to the step 1 - C - Do the landmark for scoring front and back ic with params"
             ];
@@ -794,6 +830,7 @@ class CTOSeKYCApi
             } else {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
+                $outputArray['error'] = true;
                 Log::error(json_encode($outputArray));
                 $this->TEXT_SIMILARITY_RESULT = null;
             }
@@ -801,7 +838,10 @@ class CTOSeKYCApi
             return $outputArray;
         } catch (\Exception $e) {
             Log::error(json_encode($e));
-            return 'error';
+            return [
+                'error' => true,
+                'error_message' => $e
+            ];
         }
     }
 
@@ -863,15 +903,20 @@ class CTOSeKYCApi
                 } else {
                     $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                     $outputArray = json_decode($output, true);
+                    $outputArray['error'] = true;
                     Log::error(json_encode($outputArray));
                 }
                 return $outputArray;
             } catch (\Exception $e) {
                 Log::error(json_encode($e));
-                return 'error';
+                return [
+                    'error' => true,
+                    'error_message' => $e
+                ];
             }
         } else {
             $message = [
+                'error' => true,
                 'status' => 'error',
                 'message' => "please go to the step 1 - D - save data with params"
             ];
@@ -935,12 +980,16 @@ class CTOSeKYCApi
             } else {
                 $output = openssl_decrypt(base64_decode($resArray['data']), $this->CIPHER, $this->CIPHER_TEXT . $this->API_KEY, OPENSSL_RAW_DATA, $this->CIPHER_TEXT);
                 $outputArray = json_decode($output, true);
+                $outputArray['error'] = true;
                 Log::error(json_encode($outputArray));
             }
             return $outputArray;
         } catch (\Exception $e) {
             Log::error(json_encode($e));
-            return 'error';
+            return [
+                'error' => true,
+                'error_message' => $e
+            ];
         }
     }
 
